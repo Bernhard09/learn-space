@@ -1,32 +1,27 @@
 import Link from 'next/link';
 import NavLinks from '@/app/ui/dashboard/nav-links';
-import { PowerIcon } from '@heroicons/react/24/outline';
+import { PowerIcon, AcademicCapIcon } from '@heroicons/react/24/outline';
+import { montserratAlternates } from '@/app/ui/fonts';
+
 // import { signOut } from '@/auth';
 export default function SideNav() {
   return (
-    <div className="flex h-full flex-col px-3 py-4 md:px-2">
-      <Link
-        className="mb-2 flex h-20 items-end justify-start rounded-md bg-blue-600 p-4 md:h-40"
-        href="/"
-      >
-        <div className="w-32 text-white md:w-40">
-          {/* <AcmeLogo /> */}
-        </div>
-      </Link>
-      <div className="flex grow flex-row justify-between space-x-2 md:flex-col md:space-x-0 md:space-y-2">
+    <div className='flex flex-col gap-8  md:h-screen bg-[#16275A] text-white p-4'>
+      <div className='flex flex-row items-center justify-center mb-8 md:mb-18'>
+        <AcademicCapIcon className=' w-20 md:w-30 mr-4' />
+        <h1 className={`${montserratAlternates.className} font-bold mt-4 md:mt-0 text-3xl md:text-4xl`}>
+          Learn Space 
+        </h1>
+
+      </div>
+      <nav className='flex-grow flex flex-row md:flex-col gap-4'>
         <NavLinks />
-        <div className="hidden h-auto w-full grow rounded-md bg-gray-50 md:block"></div>
-        <form 
-        //   action={async () => {
-        //     'use server';
-        //     await signOut({ redirectTo: '/' });
-        //   }}
-          >
-          <button className="flex h-[48px] w-full grow items-center justify-center gap-2 rounded-md bg-gray-50 p-3 text-sm font-medium hover:bg-sky-100 hover:text-blue-600 md:flex-none md:justify-start md:p-2 md:px-3">
-            <PowerIcon className="w-6" />
-            <div className="hidden md:block">Sign Out</div>
-          </button>
-        </form>
+      </nav>
+      <div className='flex items-center justify-center mt-auto'>
+        <Link href='/login' className='flex items-center gap-2 text-white hover:text-gray-300'>
+          <PowerIcon className='w-6 h-6' />
+          Logout
+        </Link>
       </div>
     </div>
   );
