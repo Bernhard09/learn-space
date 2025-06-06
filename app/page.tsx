@@ -1,8 +1,8 @@
 import Image from "next/image";
-import LearnSpaceLogo from "./ui/ls-logo";
+import LearnSpaceLogo from "../components/ls-logo";
 import style from "./home.module.css"
 import Link from "next/link";
-import { montserrat } from "./ui/fonts";
+import { montserrat } from "../components/ui/fonts";
 import { ArrowRightEndOnRectangleIcon } from "@heroicons/react/24/outline";
 
 export default function Home() {

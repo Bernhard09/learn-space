@@ -1,0 +1,35 @@
+.presentation-manager-container {
+    padding: 1rem 2rem;
+    background-color: #f9f9f9;
+    height: 100%;
+}
+
+.manager-block {
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    margin-bottom: 1rem;
+    background-color: #ffffff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+}
+
+.manager-block-controls {
+    padding: 0.75rem 1rem;
+    background-color: #f7fafc;
+    border-bottom: 1px solid #e0e0e0;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.875rem;
+    color: #4a5568;
+}
+
+.manager-block-controls input[type="checkbox"] {
+    width: 1rem;
+    height: 1rem;
+    accent-color: #4f46e5;
+}
+
+.manager-block-content {
+    padding: 0 1rem;
+}

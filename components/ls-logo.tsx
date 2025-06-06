@@ -1,4 +1,4 @@
-import { montserratAlternates } from "@/app/ui/fonts";
+import { montserratAlternates } from "@/components/ui/fonts";
 
 export default function LearnSpaceLogo() {
     return (

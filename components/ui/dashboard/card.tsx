@@ -52,6 +52,7 @@ export function Card({
     if (description.length > 50) {
         description = description.slice(0, 50) + "..."
     } 
+    
     return (
         <div className={`flex flex-col border shadow-lg rounded-xl p-4`}>
             <Image
@@ -63,6 +64,7 @@ export function Card({
                 width={400}
                 height={200}
             />
+    
             <div className="flex flex-row justify-between">
                 <div className="flex flex-col mb-4 overflow-hidden">
                     <h2 className="text-xl font-bold ">{title}</h2>
@@ -71,7 +73,7 @@ export function Card({
                 <EllipsisVerticalIcon className="w-6 h-6 text-gray-500 cursor-pointer hover:text-gray-700" />
 
             </div>
-            <Link href={detailPath} className="flex justify-center border text-black py-2 px-4 rounded-2xl hover:bg-[#16275A] hover:border-0 hover:text-white transition cursor-pointer">
+            <Link href={detailPath} className="flex justify-center border text-black py-2 px-4 rounded-2xl hover:bg-sky-100 hover:text-blue-600 hover:border-blue-600 transition duration-300 cursor-pointer">
                 Jump In
             </Link>
         </div>
@@ -82,7 +84,7 @@ export function Card({
 
 export default function CardWrapper() {
     return (
-        <div className={` grid grid-cols-1 sm:grid-cols-3 gap-6 p-4`}>
+        <div className={` grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 p-4`}>
             {cardsInfo.map((cards) => (
                 <Card
                     key={cards.id+cards.title}

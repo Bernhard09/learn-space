@@ -1,9 +1,9 @@
 import Link from 'next/link';
-import NavLinks from '@/app/ui/dashboard/nav-links';
+import NavLinks from '@/components/ui/dashboard/nav-links';
 import { PowerIcon, AcademicCapIcon } from '@heroicons/react/24/outline';
-import { montserratAlternates } from '@/app/ui/fonts';
-
+import { montserratAlternates } from '@/components/ui/fonts';
 // import { signOut } from '@/auth';
+
 export default function SideNav() {
   return (
     <div className='flex flex-col gap-8  md:h-screen bg-[#16275A] text-white p-4'>
