@@ -16,6 +16,7 @@ import {
 import ArrowLeftIcon from "@heroicons/react/24/outline/ArrowLeftIcon";
 import { Edit, PresentationIcon } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
+import { Button } from "@/components/ui/button";
 
 type sideBarItem = {
     title: string;
@@ -33,19 +34,7 @@ type sideBarItem = {
 
 //     const item = data as Record<>
 // }
-
-const items = [
-        {
-            title: 'Editor',
-            url: '/dashboard/course/1',
-            icon: Edit,
-        },
-        {
-            title: 'Presentation',
-            url: '/dashboard/course/1/presentation',
-            icon: PresentationIcon
-        }
-    ] 
+ 
 
 
 export function AppSidebar() {
@@ -56,8 +45,21 @@ export function AppSidebar() {
         router.back();
     }
     
+    const id = pathname.split('/')[3]; // Assuming the ID is the 4th segment in the path
 
-    console.log(`pathname: ${pathname}`);
+    const items = [
+        {
+            title: 'Editor',
+            url: `/dashboard/course/${id}`,
+            icon: Edit,
+        },
+        {
+            title: 'Presentation',
+            url: `/dashboard/course/${id}/presentation`,
+            icon: PresentationIcon
+        }
+] 
+
 
     return (
         <Sidebar collapsible="icon">
@@ -66,10 +68,13 @@ export function AppSidebar() {
             <SidebarGroup />
                 <SidebarGroupLabel> 
                 <div className="flex flex-row items-center gap-4 mb-4">
-                    <a href={"/dashboard"} className="flex flex-row gap-2 mb-4">
-                        <ArrowLeftIcon className="w-6"/>
+                    <Button className="hover:cursor-pointer" onClick={handleRouter}>
+                        <ArrowLeftIcon /> Back to Dashboard
+                    </Button>
+                    {/* <a href={"/dashboard"} className="flex flex-row gap-2 mb-4">
+                        <ArrowLeftIcon className="w-4"/>
                     </a>
-                    <h1 className="text-3xl font-bold mb-4">{'Course Title'}</h1>
+                    <h1 className=" font-bold mb-4">{'Back to dashboard'}</h1> */}
                 </div>
                 </SidebarGroupLabel>
                 <SidebarGroupContent>

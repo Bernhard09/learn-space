@@ -24,16 +24,16 @@ export default function Page() {
   const [loading, setLoading] = useState(false);
 
   /**
-   * Handles the form submission for user login.
-   * It sends the user's credentials to the login API endpoint.
+   * Handles the form submission for user registration.
+   * It sends the user's credentials to the registration API endpoint.
    */
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setLoading(true);
 
     try {
-      const response = await fetch('/api/auth/login', {
+      const response = await fetch('/api/auth/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -42,16 +42,16 @@ export default function Page() {
       });
 
       if (response.ok) {
-        // On successful login, redirect to the user's dashboard
-        router.push('/dashboard');
-        router.refresh(); // Refresh to ensure server-side state is updated
+        // On successful registration, redirect to the login page
+        router.push('/login');
       } else {
         // If the server returns an error, display it
-        setError('Invalid email or password. Please try again.');
+        const errorData = await response.json();
+        setError(errorData.error || 'Registration failed. Please try again.');
       }
     } catch (err) {
-      // Handle network or unexpected errors
-      setError('An unexpected error occurred. Please try again later.');
+      // Handle network errors
+      setError('An unexpected error occurred. Please check your connection.');
     } finally {
       setLoading(false);
     }
@@ -61,12 +61,12 @@ export default function Page() {
     <main className="flex items-center justify-center min-h-screen bg-gray-50">
       <Card className="w-full max-w-sm">
         <CardHeader>
-          <CardTitle className="text-2xl">Login</CardTitle>
+          <CardTitle className="text-2xl">Register</CardTitle>
           <CardDescription>
-            Enter your email below to log in to your account.
+            Enter your email below to create a new account.
           </CardDescription>
         </CardHeader>
-        <form onSubmit={handleLogin}>
+        <form onSubmit={handleRegister}>
           <CardContent className="grid gap-4">
             <div className="grid gap-2">
               <Label htmlFor="email">Email</Label>
@@ -95,12 +95,12 @@ export default function Page() {
           </CardContent>
           <CardFooter className="flex flex-col">
             <Button className="w-full" type="submit" disabled={loading}>
-              {loading ? 'Logging in...' : 'Log In'}
+              {loading ? 'Creating Account...' : 'Create Account'}
             </Button>
             <div className="mt-4 text-center text-sm">
-              Don&apos;t have an account?{' '}
-              <Link href="/register" className="underline">
-                Register
+              Already have an account?{' '}
+              <Link href="/login" className="underline">
+                Log in
               </Link>
             </div>
           </CardFooter>

@@ -14,7 +14,7 @@ export default function Layout({
     return (
         <SidebarProvider>
             <AppSidebar  />
-            <main className="flex flex-col gap-4 p-4">
+            <main className="flex flex-col gap-4 p-4 w-screen">
                 <SidebarTrigger />
                 {/* menu-bar */}
                 {/* <div className="flex flex-row items-center gap-4 mb-4">

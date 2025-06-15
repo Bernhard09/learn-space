@@ -1,5 +1,3 @@
-// prisma/schema.prisma
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -12,26 +10,32 @@ datasource db {
 model User {
   id        String   @id @default(cuid())
   email     String   @unique
-  password  String
+  password  String   @db.Text
   createdAt DateTime @default(now())
+
   courses   Course[]
 }
 
 model Course {
   id                   String   @id @default(cuid())
   title                String
+  description          String?  @db.Text // Make description optional
+  thumbnailUrl         String?  @db.Text // Make thumbnail URL optional
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
-  blocks               Block[]
-  presentationBlockIds String   @db.Text
+  
   authorId             String
   author               User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  
+  blocks               Block[]
+  presentationBlockIds String   @db.Text
 }
 
 model Block {
   id       String @id @default(cuid())
   json     String @db.Text
   position Int
+  
   courseId String
   course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
