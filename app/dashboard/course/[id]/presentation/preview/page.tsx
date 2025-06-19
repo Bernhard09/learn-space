@@ -67,9 +67,9 @@ export default function Page({ params }) {
                     <h1 className="text-3xl font-bold">{data.course.title}</h1>
                     <p className="text-muted-foreground">Presentation Preview</p>
                 </div>
-                <Link href={`/dashboard/course/${id}/presentation`}>
+                <Link href={`/dashboard/course/${id}/presentations`}>
                     <Button variant="outline" className="mt-4 sm:mt-0">
-                        &larr; Back to Planner
+                        &larr; Back to Presentations
                     </Button>
                 </Link>
             </div>

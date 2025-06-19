@@ -21,10 +21,12 @@ function PresentationView({ blocks }: { blocks: Block[] }) {
 }
 
 export default function Page({ params }) {
-    // Use the new public API endpoint to fetch data
-
     const { id }: { id: string } = React.use(params);
-    const { data, error, isLoading } = useSWR(`/api/public/presentation/${id}`, fetcher);
+    const { data, error, isLoading } = useSWR(`/api/public/presentation/${id}`, fetcher, {
+        refreshInterval: 5000, // Auto-refresh every 5 seconds 
+        revalidateOnFocus: true, // Also refresh when the window regains focus
+        dedupingInterval: 2000, // Reduce deduping interval for more frequent checks
+    });
 
     const presentationBlocks = useMemo(() => {
         if (!data) return [];
@@ -59,12 +61,15 @@ export default function Page({ params }) {
         <main className="container mx-auto max-w-4xl p-4 md:p-8">
             <header className="mb-6 text-center">
                 <h1 className="text-4xl font-bold">{data.title}</h1>
-                <p className="text-muted-foreground mt-2">A presentation from Learn Space</p>
+                <p className="text-muted-foreground mt-2">A presentation from {data.courseTitle}</p>
             </header>
             <Separator className="mb-8"/>
             <div className="prose prose-lg max-w-none">
                 {presentationBlocks.length > 0 ? (
-                    <PresentationView blocks={presentationBlocks} />
+                    <PresentationView 
+                        key={JSON.stringify(presentationBlocks.map(b => b.id))} 
+                        blocks={presentationBlocks} 
+                    />
                 ) : (
                     <div className="text-center py-12 text-gray-500">
                         <p>This presentation doesn't have any content selected yet.</p>

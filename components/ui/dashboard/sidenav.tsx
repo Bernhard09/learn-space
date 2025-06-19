@@ -2,6 +2,7 @@ import Link from 'next/link';
 import NavLinks from '@/components/ui/dashboard/nav-links';
 import { PowerIcon, AcademicCapIcon } from '@heroicons/react/24/outline';
 import { montserratAlternates } from '@/components/ui/fonts';
+import { LogoutButton } from '@/components/logout-button';
 // import { signOut } from '@/auth';
 
 export default function SideNav() {
@@ -18,10 +19,7 @@ export default function SideNav() {
         <NavLinks />
       </nav>
       <div className='flex items-center justify-center mt-auto'>
-        <Link href='/login' className='flex items-center gap-2 text-white hover:text-gray-300'>
-          <PowerIcon className='w-6 h-6' />
-          Logout
-        </Link>
+        <LogoutButton />
       </div>
     </div>
   );

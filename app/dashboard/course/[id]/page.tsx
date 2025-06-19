@@ -4,15 +4,25 @@ import { useRouter } from 'next/navigation';
 import useSWR from 'swr';
 import { useDebouncedCallback } from 'use-debounce';
 import type { Block } from '@blocknote/core';
-// Import useCreateBlockNote instead of useBlockNote
+
+// Import BlockNote components and styles
 import { BlockNoteView } from '@blocknote/mantine';
 import { useCreateBlockNote } from '@blocknote/react';
 import "@blocknote/core/fonts/inter.css";
 import "@blocknote/mantine/style.css";
+import {
+    PDFExporter,
+    pdfDefaultSchemaMappings,
+} from "@blocknote/xl-pdf-exporter";
+import * as ReactPDF from "@react-pdf/renderer";
+
 import { Skeleton } from '@/components/ui/skeleton';
 import { Separator } from '@/components/ui/separator';
 
+
+
 import React from 'react';
+import { Button } from '@/components/ui/button';
 
 const fetcher = (url: string) => fetch(url).then((res) => {
     if (!res.ok) {
@@ -21,33 +31,62 @@ const fetcher = (url: string) => fetch(url).then((res) => {
     return res.json();
 });
 
-/**
- * A new component for the editor itself.
- * This ensures that `useCreateBlockNote` is only called once the initial content is available.
- */
-function Editor({ initialContent, onSave }: { initialContent: Block[], onSave: (document: Block[]) => void }) {
-    // 1. Initialize the editor with useCreateBlockNote, using the initial content prop
+function Editor({ 
+    initialContent,
+    title, 
+    onSave 
+} : { 
+    initialContent: Block[],
+    title: string, 
+    onSave: (document: Block[]) => void 
+}) {
+    
     const editor = useCreateBlockNote({ initialContent });
 
 
     const debouncedSave = useDebouncedCallback((document: Block[]) => {
         onSave(document);
     }, 1500);
+    
+    const handleExportToPDF = async () => {
+        try {
+            const pdfExporter = new PDFExporter(editor.schema, pdfDefaultSchemaMappings);
+            // Convert the blocks to a react-pdf document
+            const pdfDocument = await pdfExporter.toReactPDFDocument(editor.document);
+            // Use react-pdf to generate a blob and download it
+            const blob = await ReactPDF.pdf(pdfDocument).toBlob();
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `${title || 'document'}.pdf`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error('Error exporting to PDF:', error);
+        }
+    }
 
     return (
-        <BlockNoteView
-            editor={editor}
-            theme="light"
-            // 3. Use the `onChange` prop of the view to trigger the debounced save
-            onChange={() => {
-                debouncedSave(editor.document);
-            }}
-            className='w-full mt-4'
-        />
+        <>
+            <Button className='mb-3' onClick={handleExportToPDF}>Export to PDF</Button>
+            <Separator />
+            <BlockNoteView
+                editor={editor}
+                theme="light"
+                // 3. Use the `onChange` prop of the view to trigger the debounced save
+                onChange={() => {
+                    debouncedSave(editor.document);
+                }}
+                className='w-full mt-4'
+            />
+        </>
     );
 }
 
 export default function Page({ params }) {
+
     
     const { id } : { id: string } = React.use(params);
     const router = useRouter();
@@ -56,11 +95,26 @@ export default function Page({ params }) {
     // This function will be passed as a prop to the Editor component
     const handleSave = async (document: Block[]) => {
         try {
-            await fetch(`/api/course/${id}`, {
+            console.log('Saving document:', document);
+            // Include the current presentationBlockIds from the data if available
+            const presentationBlockIds = data.course.presentationBlockIds || [];
+            
+            const response = await fetch(`/api/course/${id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ document }),
+                body: JSON.stringify({ 
+                    document,
+                    presentationBlockIds 
+                }),
             });
+            
+            if (!response.ok) {
+                const errorData = await response.text();
+                console.error(`Error ${response.status}: ${errorData}`);
+                throw new Error(`Failed to save: ${response.status} ${errorData}`);
+            }
+            
+            console.log('Document saved successfully');
         } catch (err) {
             console.error("Failed to save document:", err);
         }
@@ -93,17 +147,17 @@ export default function Page({ params }) {
     // Default block to provide if a new course has no content yet.
     // This prevents the "initialContent must be a non-empty array" error.
     const defaultInitialContent: Block[] = [
-      {
-        id: "initial-block",
-        type: "paragraph",
-        props: {
-          textColor: "default",
-          backgroundColor: "default",
-          textAlignment: "left",
+        {
+            id: "initial-block",
+            type: "paragraph",
+            props: {
+                textColor: "default",
+                backgroundColor: "default",
+                textAlignment: "left",
+            },
+            content: [],
+            children: [],
         },
-        content: [],
-        children: [],
-      },
     ];
 
     // Check if the fetched document is empty. If so, use the default content.
@@ -115,11 +169,13 @@ export default function Page({ params }) {
     // Render the editor component only when the data is ready
     return (
         <div>
-            <h1 className="text-4xl font-bold mb-8">{data.course.title}</h1>
-            <Separator />
+            <div className="flex flex-row items-center justify-between mb-6">
+                <h1 className="text-4xl font-bold mb-8">{data.course.title}</h1>
+            </div>
+            
             <Editor
-                
                 initialContent={initialContent}
+                title={data.course.title}
                 onSave={handleSave}
             />
         </div>

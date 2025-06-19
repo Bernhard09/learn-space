@@ -40,7 +40,7 @@ export async function POST(request: Request) {
         sameSite: 'lax',
         domain: process.env.NODE_ENV === 'production' ? process.env.DOMAIN : undefined,
         maxAge: MAX_AGE,
-        path: '/dashboard',
+        path: '/',
     });
 
     return new Response(JSON.stringify({ 

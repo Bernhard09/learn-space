@@ -35,4 +35,16 @@ export const createCourseSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters long").max(100),
   description: z.string().optional(),
   thumbnailUrl: z.string().url({ message: "Please enter a valid URL." }).optional().or(z.literal('')),
+}).transform((data) => {
+  // Generate a slug from the title
+  const slug = data.title
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-') // Replace non-alphanumeric chars with hyphens
+    .replace(/^-|-$/g, '') // Remove leading/trailing hyphens
+    .substring(0, 60); // Limit length
+  
+  return {
+    ...data,
+    slug // Use only the title-based slug without additional identifiers
+  };
 });

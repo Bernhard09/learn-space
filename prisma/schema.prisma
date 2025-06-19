@@ -19,6 +19,7 @@ model User {
 model Course {
   id                   String   @id @default(cuid())
   title                String
+  slug                 String   @unique // Unique slug for friendly URLs
   description          String?  @db.Text // Make description optional
   thumbnailUrl         String?  @db.Text // Make thumbnail URL optional
   createdAt            DateTime @default(now())
@@ -28,7 +29,8 @@ model Course {
   author               User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
   
   blocks               Block[]
-  presentationBlockIds String   @db.Text
+  presentations        Presentation[]
+  presentationBlockIds String   @db.Text // Keeping for backward compatibility
 }
 
 model Block {
@@ -40,4 +42,15 @@ model Block {
   course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
   @@unique([courseId, position])
+}
+
+model Presentation {
+  id                   String   @id @default(cuid())
+  title                String
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+  blockIds             String   @db.Text // JSON array of block IDs to include in presentation
+  
+  courseId             String
+  course               Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
 }

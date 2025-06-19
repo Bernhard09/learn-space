@@ -42,7 +42,7 @@ export function AppSidebar() {
     const router = useRouter();
     const pathname = usePathname();
     const handleRouter = () => {
-        router.back();
+        router.push('/dashboard');
     }
     
     const id = pathname.split('/')[3]; // Assuming the ID is the 4th segment in the path
@@ -54,8 +54,8 @@ export function AppSidebar() {
             icon: Edit,
         },
         {
-            title: 'Presentation',
-            url: `/dashboard/course/${id}/presentation`,
+            title: 'Presentations',
+            url: `/dashboard/course/${id}/presentations`,
             icon: PresentationIcon
         }
 ] 

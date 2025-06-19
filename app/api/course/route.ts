@@ -2,31 +2,41 @@
 import { PrismaClient } from '@prisma/client';
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import jwt from 'jsonwebtoken';
+import { jwtVerify } from 'jose'; 
 import { createCourseSchema } from '@/lib/schemas';
 
 const prisma = new PrismaClient();
+const secret = new TextEncoder().encode(process.env.JWT_SECRET);
 
-// The GET function remains the same
-export async function GET() {
+// Helper function to get userId from token to avoid repetition
+async function getUserIdFromToken(tokenValue: string | undefined): Promise<string | null> {
+    if (!tokenValue) return null;
     try {
-        const getCookies = await cookies();
-        const token = await getCookies.get('jwt')?.value;
-        if (!token) return new NextResponse('Unauthorized', { status: 401 });
-        
-        const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId: string };
-        const userId = decoded.userId;
+        const decoded = await jwtVerify(tokenValue, secret);
+        const userId = decoded.payload.userId as string;
+        return userId;
+    } catch (error) {
+        console.error("JWT Verification Error:", error);
+        return null;
+    }
+}
 
+export async function GET() {
+    const getCookies = await cookies(); 
+    const token = getCookies.get('jwt')?.value;
+    const userId = await getUserIdFromToken(token);
+
+    if (!userId) {
+        return new NextResponse('Unauthorized: Invalid or missing token', { status: 401 });
+    }
+
+    try {
         const courses = await prisma.course.findMany({
             where: { authorId: userId },
             orderBy: { createdAt: 'desc' },
         });
-
         return NextResponse.json(courses);
     } catch (error) {
-        if (error instanceof jwt.JsonWebTokenError) {
-          return new NextResponse('Unauthorized: Invalid Token', { status: 401 });
-        }
         return new NextResponse('Internal Server Error', { status: 500 });
     }
 }
@@ -35,31 +45,32 @@ export async function GET() {
  * Handles POST requests to create a new course.
  */
 export async function POST(request: Request) {
-    try {
-        const getCookies = await cookies();
-        const token = await getCookies.get('jwt')?.value;
-        if (!token) return new NextResponse('Unauthorized', { status: 401 });
-        
-        const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId: string };
-        const userId = decoded.userId;
+    const getCookies = await cookies(); 
+    const token = getCookies.get('jwt')?.value;
+    const userId = await getUserIdFromToken(token);
 
+    if (!userId) {
+        // This will now catch expired tokens or any verification failures
+        return new NextResponse('Unauthorized: Invalid or missing token', { status: 401 });
+    }
+
+    try {
         const body = await request.json();
         const validation = createCourseSchema.safeParse(body);
         if (!validation.success) {
             return NextResponse.json({ errors: validation.error.flatten() }, { status: 400 });
         }
 
-        const { title, description, thumbnailUrl } = validation.data;
+        const { title, description, thumbnailUrl, slug } = validation.data;
 
-        // --- THE FIX: Convert empty strings to null before saving ---
+        // 3. 'userId' is now correctly extracted and guaranteed to be a string
         const newCourse = await prisma.course.create({
             data: {
                 title,
-                // If description is an empty string, save it as null, otherwise save the value.
-                description: description || null, 
-                // If thumbnailUrl is an empty string, save it as null, otherwise save the value.
-                thumbnailUrl: thumbnailUrl || null, 
-                authorId: userId,
+                slug, // Add the slug field
+                description: description || null,
+                thumbnailUrl: thumbnailUrl || null,
+                authorId: userId, // This will no longer be undefined
                 presentationBlockIds: '[]',
             }
         });
@@ -67,9 +78,10 @@ export async function POST(request: Request) {
         return NextResponse.json(newCourse, { status: 201 });
 
     } catch (error) {
-        console.error("CREATE COURSE ERROR:", error); // Added for better debugging
-        if (error instanceof jwt.JsonWebTokenError) {
-          return new NextResponse('Unauthorized: Invalid Token', { status: 401 });
+        console.error("CREATE COURSE ERROR:", error); 
+        // This will catch Prisma errors specifically
+        if (error instanceof Error && 'code' in error && error.code === 'P2002') {
+                return new NextResponse('A course with this title already exists.', { status: 409 });
         }
         return new NextResponse('Internal Server Error', { status: 500 });
     }
